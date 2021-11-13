@@ -1,7 +1,9 @@
 
+enum TodoStatus {Complete, Incomplete}
+
 class Todo {
   final String title;
-  final bool isCompleted;
+  final TodoStatus status;
 
-  Todo(this.title, this.isCompleted);
+  const Todo({this.title, this.status});
 }

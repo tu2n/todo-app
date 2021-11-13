@@ -4,9 +4,9 @@ import 'todo_action.dart';
 import 'todo_state.dart';
 
 final todoReducer = combineReducers<TodoState>([
-  TypedReducer<TodoState, SetCompleteAction>(_setCompleteAction),
+  TypedReducer<TodoState, UpdateTodos>(_updateTodos),
 ]);
 
-TodoState _setCompleteAction(TodoState state, SetCompleteAction action) {
+TodoState _updateTodos(TodoState state, UpdateTodos action) {
   return state.copyWith(todos: action.todos);
 }
