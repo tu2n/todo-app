@@ -29,7 +29,6 @@ class CreateTodoDialog extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(10),
         ),
-        cursorColor: CupertinoColors.activeGreen,
       ),
       actions: [
         CupertinoDialogAction(

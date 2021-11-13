@@ -40,7 +40,7 @@ class SetCompleteAction {
 
   @override
   String toString() {
-    return '${super.toString()} : {Title: ${todo.title}';
+    return '${super.toString()} : Title: ${todo.title}';
   }
 }
 
@@ -56,10 +56,10 @@ class SetIncompleteAction {
   }
 }
 
-class AddTodo {
+class AddTodoAction {
   final Todo todo;
 
-  AddTodo({this.todo});
+  AddTodoAction({this.todo});
 
   @override
   String toString() {

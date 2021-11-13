@@ -11,8 +11,7 @@ class TodoMiddleware extends MiddlewareClass<AppState> {
   @override
   void call(Store<AppState> store, action, NextDispatcher next) {
 
-
-    if(action is AddTodo) {
+    if(action is AddTodoAction) {
       List<Todo> todos = [];
       todos = store.state.todoState.todos;
 
@@ -20,6 +19,19 @@ class TodoMiddleware extends MiddlewareClass<AppState> {
 
       store.dispatch(UpdateTodos(todos: todos));
     }
+
+    if(action is SetCompleteAction) {
+      Todo todo = Todo(
+        index: action.todo.index,
+        title: action.todo.title,
+        status: TodoStatus.Complete
+      );
+
+      store.state.todoState.todos.remove(action.todo);
+      store.state.todoState.todos.add(todo);
+
+    }
+
     next(action);
   }
 }

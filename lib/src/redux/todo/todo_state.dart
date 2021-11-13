@@ -13,8 +13,8 @@ class TodoState {
 
   factory TodoState.initial() => TodoState(
       todos: <Todo>[],
-      complete: 0,
-      inComplete: 0
+      complete: null,
+      inComplete: null
   );
 
   TodoState copyWith({
