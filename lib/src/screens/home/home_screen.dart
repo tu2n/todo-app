@@ -1,3 +1,4 @@
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,7 +13,6 @@ import '../../redux/app_state.dart';
 import '../../utilities/size_config.dart';
 import '../../redux/todo/todo_action.dart';
 import 'components/create_todo_dialog.dart';
-import 'components/body_component.dart';
 import 'components/empty_signage.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,6 +25,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   final TextEditingController controller = TextEditingController();
+  int rebuild;
 
   @override
   void dispose() {
@@ -82,36 +83,41 @@ class _HomeScreenState extends State<HomeScreen> {
         converter: (store) => {
           "todos" : store.state.todoState.todos,
           "indexTab" : store.state.homeState.indexTab
-
         },
+
         builder: (context, vm) {
+          debugPrint("Tab index: ${vm['indexTab']}");
           String asset;
           String description;
 
           List<Todo> todos = [];
           List<Todo> finalTodos = [];
 
-
           todos = vm['todos'];
 
           switch(vm['indexTab']) {
-            case 0 : {
-              finalTodos = todos;
+            case 0: {
               asset = "assets/svg/check_boxes.svg";
               description = "Tap add button to create todo.";
-            }
-            break;
-            case 1 :{
-              finalTodos = todos.where((element) => element.status == TodoStatus.Complete).toList();
+              for (var element in todos) {
+                finalTodos.add(element);
+              }
+
+            } break;
+            case 1: {
               asset = "assets/svg/done.svg";
               description = "No completed todo yet.";
-            }
-            break;
-            case 2 : {
-              finalTodos = todos.where((element) => element.status == TodoStatus.Incomplete).toList();
+              for (var element in todos) {
+                if(element.status == TodoStatus.Complete) finalTodos.add(element);
+              }
+            } break;
+            case 2: {
               asset = "assets/svg/working.svg";
               description = "No incomplete todo yet.";
-            }
+              for (var element in todos) {
+                if(element.status == TodoStatus.Incomplete) finalTodos.add(element);
+              }
+            } break;
           }
 
           return finalTodos.isNotEmpty
@@ -119,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
             margin: const EdgeInsets.symmetric(horizontal: 20),
             child: ListView.separated(
               shrinkWrap: true,
-              itemCount: todos.length,
+              itemCount: finalTodos.length,
               itemBuilder: (context, index) {
                 return Container(
                   decoration: BoxDecoration (
@@ -129,17 +135,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: ListTile(
                     onTap: () {
                       store.dispatch(SetCompleteAction(todo: todos[index]));
+                      setState(() {
+                        rebuild++;
+                      });
                     },
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    title: Text(todos[index].title,
+                    title: Text(finalTodos[index].title,
                       style: const TextStyle(color: Colors.white),
                     ),
-                    subtitle: Text(describeEnum(todos[index].status),
+                    subtitle: Text(describeEnum(finalTodos[index].status),
                       style: const TextStyle(color: Colors.white),
                     ),
-                    trailing: Text(todos[index].index.toString()),
                   ),
                 );
               },
