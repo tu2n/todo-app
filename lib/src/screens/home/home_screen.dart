@@ -14,6 +14,8 @@ import '../../utilities/size_config.dart';
 import '../../redux/todo/todo_action.dart';
 import 'components/create_todo_dialog.dart';
 import 'components/empty_signage.dart';
+import 'input_validator.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key key}) : super(key: key);
@@ -24,8 +26,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
 
+  final _formKey = GlobalKey<FormState>();
+
   final TextEditingController controller = TextEditingController();
-  int rebuild;
+  int rebuild = 0;
 
   @override
   void dispose() {
@@ -51,27 +55,28 @@ class _HomeScreenState extends State<HomeScreen> {
                     barrierDismissible: true,
                     context: context,
                     builder: (context) {
-                      return CreateTodoDialog(
-                        controller: controller,
-                        cancel: () => Navigator.pop(context),
-                        save: () {
-                          int index;
-                          if(store.state.todoState.todos.isEmpty) {
-                            index = 0;
-                          } else {
-                            index = store.state.todoState.todos.length + 0;
-                          }
-                          Todo todo = Todo(
-                            index: index,
-                            title: controller.text,
-                            status: TodoStatus.Incomplete
-                          );
-
-                          store.dispatch(AddTodoAction(todo: todo));
-                          controller.clear();
-                          Navigator.pop(context);
-                        },
-                      );
+                      return buildInputs(store);
+                      // return CreateTodoDialog(
+                      //   controller: controller,
+                      //   cancel: () => Navigator.pop(context),
+                      //   save: () {
+                      //     int index;
+                      //     if(store.state.todoState.todos.isEmpty) {
+                      //       index = 0;
+                      //     } else {
+                      //       index = store.state.todoState.todos.length + 0;
+                      //     }
+                      //     Todo todo = Todo(
+                      //       index: index,
+                      //       title: controller.text,
+                      //       status: TodoStatus.Incomplete
+                      //     );
+                      //
+                      //     store.dispatch(AddTodoAction(todo: todo));
+                      //     controller.clear();
+                      //     Navigator.pop(context);
+                      //   },
+                      // );
                     }
                 );
               },
@@ -132,9 +137,17 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: kColor1,
                       borderRadius: BorderRadius.circular(10)
                   ),
-                  child: ListTile(
-                    onTap: () {
-                      store.dispatch(SetCompleteAction(todo: todos[index]));
+                  child: CheckboxListTile(
+                    activeColor: kColor3,
+                    value: finalTodos[index].status == TodoStatus.Complete,
+                    onChanged: (value) {
+                      if(value) {
+                        debugPrint("Value: $value");
+                        store.dispatch(SetCompleteAction(todo: todos[index]));
+                      }else{
+                        debugPrint("Value: $value");
+                        store.dispatch(SetIncompleteAction(todo: todos[index]));
+                      }
                       setState(() {
                         rebuild++;
                       });
@@ -143,9 +156,6 @@ class _HomeScreenState extends State<HomeScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     title: Text(finalTodos[index].title,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    subtitle: Text(describeEnum(finalTodos[index].status),
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -196,6 +206,57 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget buildInputs(Store<AppState> store) {
+    return CupertinoAlertDialog(
+      title: const Text("Create new todo"),
+      content: Form(
+        key: _formKey,
+        child: CupertinoTextFormFieldRow(
+          validator: InputValidator.validate,
+          controller: controller,
+          padding: const EdgeInsets.all(10),
+          placeholder: "Todo title",
+          style: const TextStyle(color: Colors.black54),
+          decoration: BoxDecoration(
+            color: CupertinoColors.extraLightBackgroundGray,
+            border: Border.all(
+                color: CupertinoColors.lightBackgroundGray,
+                width: 2
+            ),
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      ),
+      actions: [
+        CupertinoDialogAction(
+            child: const Text("Cancel"),
+            onPressed: () => Navigator.pop(context),
+        ),
+        CupertinoDialogAction(
+            child: const Text("Save"),
+            onPressed: () {
+              if(_formKey.currentState.validate()) {
+                int index;
+                if(store.state.todoState.todos.isEmpty) {
+                  index = 0;
+                } else {
+                  index = store.state.todoState.todos.length + 0;
+                }
+                Todo todo = Todo(
+                    index: index,
+                    title: controller.text,
+                    status: TodoStatus.Incomplete
+                );
+                store.dispatch(AddTodoAction(todo: todo));
+                controller.clear();
+                Navigator.pop(context);
+              }
+            }
+        )
+      ],
     );
   }
 }

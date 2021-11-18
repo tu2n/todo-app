@@ -32,6 +32,17 @@ class TodoMiddleware extends MiddlewareClass<AppState> {
 
     }
 
+    if (action is SetIncompleteAction) {
+      Todo todo = Todo(
+          index: action.todo.index,
+          title: action.todo.title,
+          status: TodoStatus.Incomplete
+      );
+
+      store.state.todoState.todos.remove(action.todo);
+      store.state.todoState.todos.add(todo);
+    }
+
     next(action);
   }
 }

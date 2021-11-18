@@ -52,7 +52,7 @@ class SetIncompleteAction {
 
   @override
   String toString() {
-    return '${super.toString()} : {Title: ${todo.title}';
+    return '${super.toString()} : Title: ${todo.title}';
   }
 }
 
